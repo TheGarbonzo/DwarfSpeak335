@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: DwarfSpeak
+## Notes: Converts chat to authentic dwarven speech (v2.2)
+## Author: YourNameHere
+## Version: 2.2
+
+DwarfSpeak.lua
