@@ -18,7 +18,3 @@ Transform your chat messages into the gruff, hearty speech of Azeroth's dwarves!
 1. **Download** the [latest release](https://github.com/YourName/DwarfSpeak/releases)  
 2. **Extract** `DwarfSPeak355-main/DwarfSpeak` folder to your WoW directory:  
    `World of Warcraft/Interface/AddOns/`
-
-*For developers:*  
-```bash
-git clone https://github.com/YourName/DwarfSpeak.git
