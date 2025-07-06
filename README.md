@@ -1,78 +1,85 @@
-DwarfSpeak - Dwarven Speech Converter for WoW 3.3.5 (WotLK)
-Description
+# DwarfSpeak - Dwarven Speech Converter for WoW 3.3.5 (WotLK)
 
-DwarfSpeak is a World of Warcraft addon that converts common combat terms into flavorful Dwarven language equivalents. Perfect for roleplaying dwarves or adding some mountain-born flavor to your chat!
+<img src="https://img.shields.io/badge/Version-2.0-blue" alt="Version"> 
+<img src="https://img.shields.io/badge/WoW-3.3.5_(WotLK)-orange" alt="WoW Version">
+<img src="https://img.shields.io/badge/Lua-100%25-purple" alt="Lua">
 
-Features:
+## Description
 
-    Converts verbs like "attack" → "charge" with proper conjugations ("attacking" → "chargin'")
+DwarfSpeak transforms common combat terms into flavorful Dwarven language equivalents, perfect for roleplaying dwarves or adding mountain-born flavor to your chat!
 
-    Replaces nouns like "boss" → "warlord" and "healer" → "mender"
+### Features
 
-    Preserves original capitalization and punctuation
+✔ Converts verbs like "attack" → "charge" with proper conjugations ("attacking" → "chargin'")  
+✔ Replaces nouns like "boss" → "warlord" and "healer" → "mender"  
+✔ Preserves original capitalization and punctuation  
+✔ Configurable options to enable/disable verb or noun replacements  
+✔ Simple slash command interface  
 
-    Configurable options to enable/disable verb or noun replacements
+## Installation
 
-    Simple slash command interface
+1. Download the latest release
+2. Extract to your WoW addons folder:  
+   `World of Warcraft/_classic_/Interface/AddOns/`
+3. Rename folder to just "DwarfSpeak" (remove any -main or version numbers)
+4. Launch WoW and enable the addon in character selection screen
 
-Installation
-
-    Download the latest release
-
-    Extract to your WoW addons folder: World of Warcraft/_classic_/Interface/AddOns/
-
-    Rename folder to just "DwarfSpeak" (remove any -main or version numbers)
-
-    Launch WoW and enable the addon in character selection screen
-
-Usage
+## Usage
 
 The addon automatically processes all chat messages you send.
-Commands:
 
-    /dwarfspeak - Open settings panel
+### Commands
 
-    /dwarfspeak [text] - Test conversion without sending chat
+| Command | Description |
+|---------|-------------|
+| `/dwarfspeak` | Open settings panel |
+| `/dwarfspeak [text]` | Test conversion without sending chat |
 
-Settings:
+### Settings
 
 Access through Interface Options or via slash command:
 
-    Enable DwarfSpeak: Master on/off toggle
+- **Enable DwarfSpeak**: Master on/off toggle
+- **Enable Verb Conjugation**: Toggle verb replacements
+- **Enable Noun Replacement**: Toggle noun replacements
 
-    Enable Verb Conjugation: Toggle verb replacements
+### Examples
 
-    Enable Noun Replacement: Toggle noun replacements
+| Original | Dwarven Version |
+|----------|-----------------|
+| "Attack the boss!" | "Charge the warlord!" |
+| "I'm healing the tank" | "I'm mendin' the shieldwall" |
+| "They pulled the mobs" | "They lured the mobs" |
 
-Examples:
+## Word Replacements
 
-    "Attack the boss!" → "Charge the warlord!"
+### Verbs
 
-    "I'm healing the tank" → "I'm mendin' the shieldwall"
+| English | Dwarven | Present | Gerund | Past |
+|---------|---------|---------|--------|------|
+| attack | charge | charges | chargin' | charged |
+| heal | mend | mends | mendin' | mended |
+| cast | hurl | hurls | hurlin' | hurled |
+| pull | lure | lures | lurin' | lured |
+| craft | forge | forges | forgin' | forged |
 
-    "They pulled the mobs" → "They lured the mobs"
+### Nouns
 
-Current Word Replacements
-Verbs:
-English	Dwarven	Forms
-attack	charge	chargin', charges
-heal	mend	mendin', mends
-cast	hurl	hurlin', hurls
-pull	lure	lurin', lures
-craft	forge	forgin', forges
-Nouns:
-English	Dwarven
-tank	shieldwall
-boss	warlord
-loot	spoils
-healer	mender
-dps	axefall
-Feedback & Contributions
+| English | Dwarven |
+|---------|---------|
+| tank | shieldwall |
+| boss | warlord |
+| loot | spoils |
+| healer | mender |
+| dps | axefall |
 
-Suggestions for additional words or improvements are welcome! Please open an issue to:
+## Feedback & Contributions
 
-    Propose new word replacements
+Suggestions welcome! Please open an issue to:
+- Propose new word replacements
+- Report bugs
+- Suggest improvements
 
-    Report any bugs
+---
 
-    Suggest quality of life improvements
+*"By the beard!" - Popular Dwarven expression*
