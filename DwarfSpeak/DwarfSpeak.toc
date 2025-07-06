@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: DwarfSpeak
-## Notes: Converts chat to authentic dwarven speech (v2.2)
-## Author: YourNameHere
-## Version: 2.2
+## Notes: Dwarven speech converter for WotLK
+## Author: TheGarbonzo + DeekSeek
+## Version: 2.0
 
 DwarfSpeak.lua

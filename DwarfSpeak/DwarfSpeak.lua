@@ -1,153 +1,147 @@
 local DwarfSpeak = CreateFrame("Frame")
-local originalSendChatMessage = SendChatMessage
+local orig_SendChatMessage = SendChatMessage
 
-local replacements = {
-    -- ===== Multi-Word Phrases =====
-    ["cya later"] = "Till th' next feast",
-    ["see ya"] = "Till th' next feast",
-    ["hey there"] = "Oy yonder",
-    ["hi there"] = "Aye yonder",
-    ["hello friend"] = "Hail battlekin",
-    ["need help"] = "Require backup",
-    ["help me"] = "Need aid",
-    ["on my way"] = "Comin' through",
-    ["good game"] = "Stone-solid work",
-    ["be right back"] = "Ale break",
-    ["thanks everyone"] = "Obliged tae all",
-    ["good job"] = "Fine craftsmanship",
-    ["nice work"] = "Proper dwarven work",
-    ["adds incoming"] = "Stowaways approach",
-    ["look out"] = "Ware danger",
-
-    -- ===== Verb Conjugations =====
-    heal = {
-        base = "mend",
-        forms = {
-            healing = "mendin'",
-            heals = "mends",
-            healed = "mended",
-            heal = "mend"
-        }
-    },
-    attack = {
-        base = "charge",
-        forms = {
-            attacking = "chargin'",
-            attacks = "charges",
-            attacked = "charged",
-            attack = "charge"
-        }
-    },
-    pull = {
-        base = "lure",
-        forms = {
-            pulling = "lurin'",
-            pulls = "lures",
-            pulled = "lured",
-            pull = "lure"
-        }
-    },
-    craft = {
-        base = "forge",
-        forms = {
-            crafting = "forgin'",
-            crafts = "forges",
-            crafted = "forged",
-            craft = "forge"
-        }
-    },
-    cast = {
-        base = "hurl",
-        forms = {
-            casting = "hurlin'",
-            casts = "hurls",
-            cast = "hurl"
-        }
-    },
-
-    -- ===== Core Nouns/Phrases =====
-    ["gg"] = "Stone-solid work!",
-    ["gl"] = "Ancestors guide ye!",
-    ["brb"] = "Ale break!",
-    ["omw"] = "Comin' through!",
-    ["ty"] = "Much obliged!",
-    ["lfg"] = "Need battlekin!",
-    ["adds"] = "Stowaways!",
-    ["hi"] = "Aye",
-    ["hello"] = "Hail",
-    ["hey"] = "Oy",
-    ["bye"] = "Safe travels",
-    ["cya"] = "Till next ale",
-    ["tank"] = "shieldwall",
-    ["dps"] = "axefall",
-    ["healer"] = "mender",
-    ["aggro"] = "attention",
-    ["loot"] = "spoils",
-    ["boss"] = "warlord",
-    ["mats"] = "forge supplies",
-    ["wtb"] = "seekin'",
-    ["wts"] = "sellin'",
-    ["inv"] = "join ranks",
-    ["kb"] = "final blow",
-    ["rez"] = "ancestor's breath"
+-- Saved Variables
+DwarfSpeakDB = DwarfSpeakDB or {
+    enabled = true,
+    verbsEnabled = true,
+    nounsEnabled = true
 }
 
-local function get_replacement(word)
-    local lowerWord = word:lower()
-    
-    -- Check multi-word phrases first
-    for phrase, dwarf in pairs(replacements) do
-        if type(dwarf) == "string" and lowerWord == phrase:lower() then
-            if word:upper() == word then
-                return dwarf:upper()
-            elseif word:match("^%u") then
-                return dwarf:gsub("^%l", string.upper)
-            end
-            return dwarf
-        end
-    end
+-- Verb Database
+local verbs = {
+    attack = {base = "charge", forms = {attacking = "chargin'", attacks = "charges", attacked = "charged"}},
+    heal = {base = "mend", forms = {healing = "mendin'", heals = "mends", healed = "mended"}},
+    cast = {base = "hurl", forms = {casting = "hurlin'", casts = "hurls", casted = "hurled"}},
+    pull = {base = "lure", forms = {pulling = "lurin'", pulls = "lures", pulled = "lured"}},
+    craft = {base = "forge", forms = {crafting = "forgin'", crafts = "forges", crafted = "forged"}}
+}
 
-    -- Handle verb conjugations
-    for eng, dwarf in pairs(replacements) do
-        if type(dwarf) == "table" and dwarf.forms then
-            for engForm, dwarfForm in pairs(dwarf.forms) do
-                if lowerWord == engForm:lower() then
-                    if word:sub(1,1):upper() == word:sub(1,1) then
-                        return dwarfForm:sub(1,1):upper() .. dwarfForm:sub(2)
-                    end
-                    return dwarfForm
-                end
-            end
-        end
-    end
+-- Noun Database
+local nouns = {
+    tank = "shieldwall",
+    boss = "warlord",
+    loot = "spoils",
+    healer = "mender",
+    dps = "axefall"
+}
 
-    -- Direct noun replacements
-    for eng, dwarf in pairs(replacements) do
-        if type(dwarf) == "string" and lowerWord == eng:lower() then
-            return dwarf
-        end
+-- Case Preservation
+local function ApplyCase(replacement, original)
+    if original == string.upper(original) then
+        return string.upper(replacement)
+    elseif string.find(original, "^%u") then
+        return string.upper(string.sub(replacement, 1, 1))..string.sub(replacement, 2)
     end
-
-    return nil
+    return replacement
 end
 
-local function ProcessMessage(text)
-    local result = {}
+-- Text Processing
+local function ProcessText(text)
+    if not DwarfSpeakDB.enabled then return text end
     
-    -- Split words with preserved punctuation
-    for word, punct in text:gmatch("([%w']+)([%p]*)") do
-        local replacement = get_replacement(word) or word
-        table.insert(result, replacement .. punct)
+    local result = {}
+    for word, punct in string.gmatch(text, "([%w']+)([%p]*)") do
+        local lowerWord = string.lower(word)
+        local replaced
+        
+        -- Verb Conjugation
+        if DwarfSpeakDB.verbsEnabled then
+            for verb, data in pairs(verbs) do
+                for engForm, dwarvForm in pairs(data.forms) do
+                    if lowerWord == string.lower(engForm) then
+                        replaced = ApplyCase(dwarvForm, word)
+                        break
+                    end
+                end
+                if replaced then break end
+            end
+        end
+        
+        -- Noun Replacement
+        if not replaced and DwarfSpeakDB.nounsEnabled then
+            local noun = nouns[lowerWord]
+            if noun then
+                replaced = ApplyCase(noun, word)
+            end
+        end
+        
+        table.insert(result, (replaced or word)..punct)
     end
-
+    
     return table.concat(result, " ")
 end
 
+-- Chat Hook
 function SendChatMessage(msg, ...)
-    originalSendChatMessage(ProcessMessage(msg), ...)
+    orig_SendChatMessage(ProcessText(msg), ...)
 end
 
+-- Settings Panel
+local function CreatePanel()
+    local panel = CreateFrame("Frame")
+    panel.name = "DwarfSpeak"
+    
+    -- Title
+    local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    title:SetPoint("TOPLEFT", 16, -16)
+    title:SetText("DwarfSpeak Settings")
+    
+    -- Master Toggle
+    local masterToggle = CreateFrame("CheckButton", "DwarfSpeakMasterToggle", panel, "OptionsCheckButtonTemplate")
+    masterToggle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -16)
+    getglobal(masterToggle:GetName().."Text"):SetText("Enable DwarfSpeak")
+    masterToggle:SetChecked(DwarfSpeakDB.enabled)
+    masterToggle:SetScript("OnClick", function(self) 
+        DwarfSpeakDB.enabled = self:GetChecked()
+        DEFAULT_CHAT_FRAME:AddMessage("DwarfSpeak: "..(DwarfSpeakDB.enabled and "|cFF00FF00Enabled|r" or "|cFFFF0000Disabled|r"))
+    end)
+    
+    -- Verbs Toggle
+    local verbsToggle = CreateFrame("CheckButton", "DwarfSpeakVerbsToggle", panel, "OptionsCheckButtonTemplate")
+    verbsToggle:SetPoint("TOPLEFT", masterToggle, "BOTTOMLEFT", 0, -16)
+    getglobal(verbsToggle:GetName().."Text"):SetText("Enable Verb Conjugation")
+    verbsToggle:SetChecked(DwarfSpeakDB.verbsEnabled)
+    verbsToggle:SetScript("OnClick", function(self)
+        DwarfSpeakDB.verbsEnabled = self:GetChecked()
+    end)
+    
+    -- Nouns Toggle
+    local nounsToggle = CreateFrame("CheckButton", "DwarfSpeakNounsToggle", panel, "OptionsCheckButtonTemplate")
+    nounsToggle:SetPoint("TOPLEFT", verbsToggle, "BOTTOMLEFT", 0, -16)
+    getglobal(nounsToggle:GetName().."Text"):SetText("Enable Noun Replacement")
+    nounsToggle:SetChecked(DwarfSpeakDB.nounsEnabled)
+    nounsToggle:SetScript("OnClick", function(self)
+        DwarfSpeakDB.nounsEnabled = self:GetChecked()
+    end)
+    
+    InterfaceOptions_AddCategory(panel)
+end
+
+-- Initialize
 DwarfSpeak:RegisterEvent("PLAYER_LOGIN")
 DwarfSpeak:SetScript("OnEvent", function()
-    DEFAULT_CHAT_FRAME:AddMessage("DwarfSpeak 2.2: Forge-fired and ready!")
+    -- Initialize DB if it doesn't exist
+    if not DwarfSpeakDB then
+        DwarfSpeakDB = {
+            enabled = true,
+            verbsEnabled = true,
+            nounsEnabled = true
+        }
+    end
+    
+    CreatePanel()
+    
+    -- Slash Commands
+    SLASH_DWARFSPEAK1 = "/dwarfspeak"
+    SlashCmdList["DWARFSPEAK"] = function(input)
+        if input and input ~= "" then
+            print("DwarfSpeak:", ProcessText(input))
+        else
+            InterfaceOptionsFrame_OpenToCategory("DwarfSpeak")
+            InterfaceOptionsFrame_OpenToCategory("DwarfSpeak") -- Fix Blizzard UI bug
+        end
+    end
+    
+    DEFAULT_CHAT_FRAME:AddMessage("DwarfSpeak v1.0 loaded. Type /dwarfspeak for options.")
 end)
